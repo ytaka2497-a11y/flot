@@ -1,0 +1,100 @@
+local player = game.Players.LocalPlayer
+local UserInputService = game:GetService("UserInputService")
+
+-- =======================
+-- ScreenGui
+-- =======================
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = player:WaitForChild("PlayerGui")
+ScreenGui.ResetOnSpawn = false
+
+-- メインフレーム
+local MainFrame = Instance.new("Frame")
+MainFrame.Parent = ScreenGui
+MainFrame.Size = UDim2.new(0,250,0,120)
+MainFrame.Position = UDim2.new(0.5,-125,0.5,-60)
+MainFrame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+MainFrame.Active = true
+MainFrame.Draggable = true
+
+-- タイトル
+local Title = Instance.new("TextLabel")
+Title.Parent = MainFrame
+Title.Size = UDim2.new(1,0,0,30)
+Title.BackgroundColor3 = Color3.fromRGB(45,45,45)
+Title.Text = "Float UI"
+Title.TextColor3 = Color3.fromRGB(255,255,255)
+Title.Font = Enum.Font.SourceSansBold
+Title.TextSize = 20
+
+-- 閉じるボタン
+local Close = Instance.new("TextButton")
+Close.Parent = Title
+Close.Size = UDim2.new(0,30,1,0)
+Close.Position = UDim2.new(1,-30,0,0)
+Close.BackgroundColor3 = Color3.fromRGB(200,60,60)
+Close.Text = "×"
+Close.TextColor3 = Color3.fromRGB(255,255,255)
+Close.Font = Enum.Font.SourceSansBold
+Close.TextSize = 18
+Close.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+-- =======================
+-- Flot 管理
+-- =======================
+_G.FlotEnabled = false
+
+-- ボタン
+local FlotButton = Instance.new("TextButton")
+FlotButton.Parent = MainFrame
+FlotButton.Size = UDim2.new(1,-20,0,50)
+FlotButton.Position = UDim2.new(0,10,0,50)
+FlotButton.BackgroundColor3 = Color3.fromRGB(60,60,60)
+FlotButton.Text = "Float: OFF"
+FlotButton.TextColor3 = Color3.fromRGB(255,255,255)
+FlotButton.Font = Enum.Font.SourceSans
+FlotButton.TextSize = 18
+
+local function toggleFlot()
+    _G.FlotEnabled = not _G.FlotEnabled
+    if _G.FlotEnabled then
+        FlotButton.Text = "Float: ON"
+        FlotButton.BackgroundColor3 = Color3.fromRGB(0,170,0)
+    else
+        FlotButton.Text = "Float: OFF"
+        FlotButton.BackgroundColor3 = Color3.fromRGB(170,0,0)
+    end
+end
+
+FlotButton.MouseButton1Click:Connect(toggleFlot)
+
+-- Qキー切替
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.KeyCode == Enum.KeyCode.Q then
+        toggleFlot()
+    end
+end)
+
+-- Flotループ（足場残す）
+task.spawn(function()
+    while true do
+        task.wait(0.1)
+        if _G.FlotEnabled then
+            local char = player.Character
+            if char and char:FindFirstChild("HumanoidRootPart") then
+                local hrp = char.HumanoidRootPart
+                local part = Instance.new("Part")
+                part.Size = Vector3.new(6,1,6)
+                part.Anchored = true
+                part.CanCollide = true
+                part.Material = Enum.Material.Neon
+                part.Color = Color3.fromRGB(0,255,255)
+                part.Position = hrp.Position - Vector3.new(0,3,0)
+                part.Parent = workspace
+            end
+        end
+    end
+end)
